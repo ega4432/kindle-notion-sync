@@ -96,7 +96,7 @@ const main = async () => {
 
   await browser.close()
 
-  console.log(books)
+  console.log(JSON.stringify(books, null, 2))
 }
 
 main()
