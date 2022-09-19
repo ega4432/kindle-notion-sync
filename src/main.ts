@@ -29,7 +29,7 @@ const main = async () => {
   }
 
   const browser = await launch({
-    headless: process.env.NODE_ENV === 'production' ? true : false
+    headless: process.env.NODE_ENV === 'production' || process.env.CI === 'true'
   })
   const page = await browser.newPage()
 
