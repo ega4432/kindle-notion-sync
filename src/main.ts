@@ -1,4 +1,4 @@
-import { launch, Page } from 'puppeteer'
+import { launch } from 'puppeteer'
 import dotenv from 'dotenv'
 
 import { GetToken } from './cmd'
@@ -11,15 +11,7 @@ const KINDLE_URL =
   'https://read.amazon.co.jp/kindle-library?tabView=all&&sortType=acquisition_desc&seriesSortType=acquisition_desc&resourceType=EBOOK'
 
 const SECRET_KEY = process.env.SECRET_KEY || ''
-let SESSION_TOKEN: string
-
-const login = async (page: Page): Promise<void> => {
-  // login
-}
-
-const scrape = async () => {
-  //
-}
+let SESSION_TOKEN = ''
 
 interface Book {
   // id: number
