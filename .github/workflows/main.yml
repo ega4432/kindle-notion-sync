@@ -6,8 +6,12 @@ on:
 jobs:
   main:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
+      - run: |
+        sudo apt-get update
+        sudo apt-get install oathtool
       - uses: actions/setup-node@v3
         with:
           node-version-file: '.node-version'
@@ -19,3 +23,4 @@ jobs:
         env:
           KINDLE_EMAIL: ${{ secrets.KINDLE_EMAIL }}
           KINDLE_PASSWORD: ${{ secrets.KINDLE_PASSWORD }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}

@@ -1,12 +1,17 @@
 import { launch, Page } from 'puppeteer'
 import dotenv from 'dotenv'
 
+import { GetToken } from './cmd'
+
 dotenv.config()
 
 const KINDLE_EMAIL = process.env.KINDLE_EMAIL || ''
 const KINDLE_PASSWORD = process.env.KINDLE_PASSWORD || ''
 const KINDLE_URL =
   'https://read.amazon.co.jp/kindle-library?tabView=all&&sortType=acquisition_desc&seriesSortType=acquisition_desc&resourceType=EBOOK'
+
+const SECRET_KEY = process.env.SECRET_KEY || ''
+let SESSION_TOKEN: string
 
 const login = async (page: Page): Promise<void> => {
   // login
@@ -24,7 +29,7 @@ interface Book {
 }
 
 const main = async () => {
-  if (KINDLE_EMAIL === '' || KINDLE_PASSWORD === '') {
+  if (KINDLE_EMAIL === '' || KINDLE_PASSWORD === '' || SECRET_KEY === '') {
     throw new Error('credentials are empty')
   }
 
@@ -40,16 +45,18 @@ const main = async () => {
   await page.type('input[type=email]', KINDLE_EMAIL)
   await page.type('input[type=password]', KINDLE_PASSWORD)
   await Promise.all([
-    page.waitForNavigation({ waitUntil: ['load', 'networkidle2'] }),
+    page.waitForNavigation({ waitUntil: ['load', 'networkidle0'] }),
     page.click('#signInSubmit')
   ])
 
-  // screen shot
-  await page.screenshot({ path: './out/image.png', fullPage: true })
+  await Promise.all([
+    page.type('#auth-mfa-otpcode', SESSION_TOKEN),
+    page.waitForNavigation({ waitUntil: ['load', 'networkidle0'] })
+  ])
 
   const coverDom = await page.$('#cover')
   if (!coverDom) {
-    throw new Error('Failed to get dom')
+    throw new Error('Failed to get dom id "#cover"')
   }
 
   const itemList = await coverDom.$$('li')
@@ -94,9 +101,17 @@ const main = async () => {
     }
   }
 
+  await page.close()
   await browser.close()
 
   console.log(JSON.stringify(books, null, 2))
 }
 
+SESSION_TOKEN = GetToken(SECRET_KEY)
+
 main()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error(err)
+    process.exit(1)
+  })
